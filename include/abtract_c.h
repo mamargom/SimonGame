@@ -24,7 +24,7 @@ void mientras(bool condicion, void (*func)()) {
     }
 }
 
-void para_cada_pin(size_t array[] , void (*func)(int)) {
+void para_cada_pin(size_t* array , void (*func)(int)) {
     size_t NumberOfElements = sizeof(array)/sizeof(array[0]);
     for (size_t i = 0; i < NumberOfElements; i++) {
         func(array[i]);

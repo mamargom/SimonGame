@@ -1,8 +1,6 @@
-
-
 #include <Arduino.h>
 #include <Vector.h>
-#include <Array.h>
+#include <time.h>
 #include "../include/abtract_c.h"
 
 #define NUMERO_DE_LEDS 4
@@ -12,12 +10,16 @@ uint8_t LONGITUD_SECUENCIA = 4;  // Número de pasos en la secuencia a repetir
 
 // Pines de LEDs y botones
 const int ledPines[NUMERO_DE_LEDS] = {8, 9, 10, 11}; 
-const int botonPines[NUMERO_DE_BOTONES] = {4, 5, 6, 7};  
+const int botonPines[NUMERO_DE_BOTONES] = {4, 5, 6, 7};
+
+Vector<uint8_t> patron_de_luces = {};
 
 int espera_hasta_boton_apretado();
-void muestra_patron_luces();
-void turno_del_jugador();
+void muestra_patron_luces(Vector<uint8_t> patron);
+void turno_del_jugador(Vector<uint8_t> patron);
 void enciende_led(int led, int segundos);
+int* genera_patron_luces();
+int numero_aleatorio(int max);
 
 
 void enciende_led(int led, int segundos) {
@@ -26,7 +28,7 @@ void enciende_led(int led, int segundos) {
     digitalWrite(led, LOW);
 }
 
-void muestra_patron_luces() {
+void muestra_patron_luces(int* patron) {
     for (int led = 0; led<NUMERO_DE_LEDS; led++) {
         enciende_led(ledPines[led], 1);
     }
@@ -44,7 +46,7 @@ int espera_hasta_boton_apretado() {
         }
 }
 
-void turno_del_jugador() {
+void turno_del_jugador(int* patron) {
     
     for (int paso_de_la_secuencia = 0; paso_de_la_secuencia < LONGITUD_SECUENCIA; paso_de_la_secuencia++)
     {
@@ -53,6 +55,20 @@ void turno_del_jugador() {
         enciende_led(ledPines[boton_apretado], 1);
     }
     
+}
+
+int numero_aleatorio(int max) {
+    return rand() % max;
+}
+
+int* genera_patron_luces() {
+
+    int* secuencia_de_luces = new int[LONGITUD_SECUENCIA];
+    for (int i = 0; i < LONGITUD_SECUENCIA; i++)
+    {
+        secuencia_de_luces[i] = numero_aleatorio(NUMERO_DE_LEDS);
+    }
+    return secuencia_de_luces;
 }
 
 
@@ -67,10 +83,14 @@ void setup() {
         pinMode(ledPines[i], OUTPUT); // LEDS
     for (int i = 0; i<NUMERO_DE_BOTONES; i++) 
         pinMode(botonPines[i], INPUT_PULLUP); // Botones
+
+    // Semilla para los numeros aleatorios
+    srand(time(NULL));
 }
 
 void loop() {
-    muestra_patron_luces();
-    turno_del_jugador();
+    int* patron_de_luces = genera_patron_luces();
+    muestra_patron_luces(patron_de_luces);
+    turno_del_jugador(patron_de_luces);
 }
 
