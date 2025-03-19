@@ -1,12 +1,13 @@
-#include <Arduino.h>
 
-/*
+#include <Arduino.h>
+#include "pitches.h"
 
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
 	Serial.println("Serial set up -> OK");
 
+  pinMode(3, OUTPUT); // BUZZER
   
   pinMode(8, OUTPUT); // LED
   pinMode(9, OUTPUT); // LED
@@ -18,44 +19,115 @@ void setup() {
   pinMode(7,INPUT_PULLUP); // BOTON
 }
 
-void enciendeLed(int led) {
+void enciende_led(int led, int segundos) {
   digitalWrite(led, HIGH);
-  delay(200);
+  delay(round(abs(segundos)*1000));
   digitalWrite(led, LOW);
 }
 
-bool botonApretado(int boton) {
-  int apretado = digitalRead(boton);
-  //delay(50);
-  if (apretado==LOW)
-  {
-    return true;
-  }else {
-    return false;
-  }
-
-  
-  return apretado;
+bool boton_apretado(int boton) {
+ return digitalRead(boton) == LOW;
 }
 
-void esperaBoton() {
+int espera_boton_pulsado() {
+
   while (true) {
-    if(botonApretado(4) == true) {
-      enciendeLed(8);
+   
+    if (boton_apretado(4)) {
+      Serial.println("Boton apretado...");
+      delay(300); // De-bounce
+      return 4;
     }
-    if(botonApretado(5) == true) {
-      enciendeLed(9);
+    if (boton_apretado(5)) {
+      Serial.println("Boton apretado...");
+      delay(300); // De-bounce
+      return 5;
     }
-    if(botonApretado(6) == true) {
-      enciendeLed(10);
+    if (boton_apretado(6)) {
+      Serial.println("Boton apretado...");
+      delay(300); // De-bounce
+      return 6;
     }
-    if(botonApretado(7) == true) {
-      enciendeLed(11);
-    }
+    if (boton_apretado(7)) {
+      Serial.println("Boton apretado...");
+      delay(300); // De-bounce
+      return 7;
+    } 
   }
 }
-void loop() {
-  esperaBoton();
+
+
+void turno_de_jugador() {
+
+  int contador = 0;
+  while (contador<4 ) {
+
+    int boton=espera_boton_pulsado();
+
+    if(boton == 4) {
+      enciende_led(8,1);
+    }
+    if(boton == 5) {
+      enciende_led(9,1);
+    }
+    if(boton == 6) {
+      enciende_led(10,1);
+    }
+    if(boton == 7) {
+      enciende_led(11,1);
+    }
+    contador=contador+1;
+  }
 }
 
-*/
+void muestra_patron() {
+
+  enciende_led(8,1);
+  enciende_led(9,1);
+  enciende_led(10,1);
+  enciende_led(11,1);
+}
+
+void soniditito(){
+
+  tone(3, NOTE_C4,1000);
+  delay(500);
+  noTone(3);
+
+  tone(3, NOTE_D4,1000);
+  delay(500);
+  noTone(3);
+
+  tone(3, NOTE_E4,1000);
+  delay(500);
+  noTone(3);
+/*
+  tone(3, NOTE_F4,1000);
+  delay(1000);
+  noTone(3);
+
+  tone(3, NOTE_G4,1000);
+  delay(1000);
+  noTone(3);
+
+  tone(3, NOTE_A4,1000);
+  delay(1000);
+  noTone(3);
+
+  tone(3, NOTE_B4,1000);
+  delay(1000);
+  noTone(3);
+
+  tone(3, NOTE_C5,1000);
+  delay(1000);
+  noTone(3);
+  */
+
+}
+
+void loop() {
+  soniditito();
+  muestra_patron();
+  turno_de_jugador();
+}
+

@@ -1,3 +1,4 @@
+/*
 #include <Arduino.h>
 #include <Vector.h>
 #include <time.h>
@@ -94,4 +95,4 @@ void loop() {
     muestra_patron_luces(patron_de_luces);
     turno_del_jugador(patron_de_luces);
 }
-
+*/
