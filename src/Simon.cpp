@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include <Vector.h>
 #include <time.h>
-#include "../include/abtract_c.h"
+#include "abtract_c.h"
+#include "pitches.h"
 
 #define NUMERO_DE_LEDS 4
 #define NUMERO_DE_BOTONES 4
