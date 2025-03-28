@@ -2,6 +2,8 @@
 #include <Arduino.h>
 #include "pitches.h"
 
+int ronda = 0;
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -63,27 +65,30 @@ void turno_de_jugador() {
   while (contador<4 ) {
 
     int boton=espera_boton_pulsado();
+    Serial.println("Ronda: " + (String) ronda + " Boton: " + (String) boton);
 
     if(boton == 4) {
+      enciende_led(9,1);
+    }
+    if(boton == 7) {
       enciende_led(8,1);
     }
     if(boton == 5) {
-      enciende_led(9,1);
-    }
-    if(boton == 6) {
       enciende_led(10,1);
     }
-    if(boton == 7) {
+    if(boton == 6) {
       enciende_led(11,1);
     }
     contador=contador+1;
   }
+
+  ronda = ronda + 1;
 }
 
 void muestra_patron() {
 
-  enciende_led(8,1);
   enciende_led(9,1);
+  enciende_led(8,1);
   enciende_led(10,1);
   enciende_led(11,1);
 }
