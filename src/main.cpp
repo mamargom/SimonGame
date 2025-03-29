@@ -1,25 +1,14 @@
 
 #include <Arduino.h>
 #include "pitches.h"
+#include <time.h>
 
 int ronda = 0;
 
-void setup() {
-  // put your setup code here, to run once:
-  Serial.begin(9600);
-	Serial.println("Serial set up -> OK");
+// Define un vector de posiciones de leds (4 cajitas: 0,1,2,3)
+uint8_t patron_de_leds[5];
+uint8_t longitud_de_patron = 5;
 
-  pinMode(3, OUTPUT); // BUZZER
-  
-  pinMode(8, OUTPUT); // LED
-  pinMode(9, OUTPUT); // LED
-  pinMode(10, OUTPUT); // LED
-  pinMode(11, OUTPUT); // LED
-  pinMode(4,INPUT_PULLUP); // BOTON
-  pinMode(5,INPUT_PULLUP); // BOTON
-  pinMode(6,INPUT_PULLUP); // BOTON
-  pinMode(7,INPUT_PULLUP); // BOTON
-}
 
 void enciende_led(int led, int segundos) {
   digitalWrite(led, HIGH);
@@ -85,12 +74,45 @@ void turno_de_jugador() {
   ronda = ronda + 1;
 }
 
-void muestra_patron() {
+uint8_t led_aleatorio() {
 
+  // calculo numero
+  return (rand() % 4 ) + 8 ;
+}
+
+void genera_patron() {
+
+  for (uint8_t i = 0; i < longitud_de_patron; i=i+1)
+  {
+    patron_de_leds[i] = led_aleatorio();
+  }
+
+}
+
+void muestra_patron(){
+
+  for (uint8_t i = 0; i < longitud_de_patron; i = i+1)
+  {
+    enciende_led (patron_de_leds[i], 1);
+  }
+  
+}
+
+
+/*
+Genera Patron aleatorio y lo muestra al Jugador
+*/
+void turno_de_maquina() {
+
+  genera_patron();
+  muestra_patron();
+
+/*
   enciende_led(9,1);
   enciende_led(8,1);
   enciende_led(10,1);
   enciende_led(11,1);
+  */
 }
 
 void soniditito(){
@@ -130,9 +152,33 @@ void soniditito(){
 
 }
 
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+	Serial.println("Serial set up -> OK");
+
+  srand(time(NULL));
+
+  pinMode(3, OUTPUT); // BUZZER
+  
+  pinMode(8, OUTPUT); // LED
+  pinMode(9, OUTPUT); // LED
+  pinMode(10, OUTPUT); // LED
+  pinMode(11, OUTPUT); // LED
+  pinMode(4,INPUT_PULLUP); // BOTON
+  pinMode(5,INPUT_PULLUP); // BOTON
+  pinMode(6,INPUT_PULLUP); // BOTON
+  pinMode(7,INPUT_PULLUP); // BOTON
+}
+
+
 void loop() {
   soniditito();
-  muestra_patron();
+  turno_de_maquina();
   turno_de_jugador();
 }
+
+
 
