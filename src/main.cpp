@@ -1,7 +1,8 @@
-
 #include <Arduino.h>
-#include "pitches.h"
 #include <time.h>
+
+#include "pitches.h"
+#include "starwars.h"
 
 
 int ronda = 0;
@@ -189,9 +190,9 @@ void muestra_patron(){
 }
 
 
-/*
-Genera Patron aleatorio y lo muestra al Jugador
-*/
+
+//Genera Patron aleatorio y lo muestra al Jugador
+
 void turno_de_maquina() {
 
   genera_patron();
@@ -209,17 +210,17 @@ void marca_cambio_maquina_a_jugador(){
 
 void soniditito(){
 
-  tone(3, NOTE_C4,1000);
-  delay(TIEMPO_NOTA_MUSICAL_LARGO);
-  noTone(3);
+  tone(BUZZER, NOTE_C4);
+  delay(1000);
+  noTone(BUZZER);
 
-  tone(3, NOTE_D4,1000);
-  delay(TIEMPO_NOTA_MUSICAL_LARGO);
-  noTone(3);
+  tone(BUZZER, NOTE_D4);
+  delay(100);
+  noTone(BUZZER);
 
-  tone(3, NOTE_E4,1000);
-  delay(TIEMPO_NOTA_MUSICAL_LARGO);
-  noTone(3);
+  tone(BUZZER, NOTE_E4);
+  delay(100);
+  noTone(BUZZER);
 
 }
 
@@ -261,7 +262,6 @@ void sonido_final(boolean ganado){
     tone(3,NOTE_E4,1000);
     delay(TIEMPO_NOTA_MUSICAL_LARGO);
     noTone(3);
- 
 
     tone(3,NOTE_C4,1000);
     delay(TIEMPO_NOTA_MUSICAL_LARGO);
@@ -302,6 +302,3 @@ void loop() {
   sonido_final(ganado);
   delay(ESPERA_LARGA);
 }
-
-
-
