@@ -36,6 +36,16 @@ enum BOTON {
 #define ESPERA_LARGA         300
 
 
+void genera_semilla_random() {
+
+  unsigned long seed = 0;
+  for(int i = A0; i <= A5; i++)
+  {
+    seed += analogRead(i); 
+  }
+  randomSeed(seed);
+}
+
 
 void enciende_led(int led, int milisegundos) {
   digitalWrite(led, HIGH);
@@ -265,6 +275,7 @@ void setup() {
   Serial.begin(9600);
 	Serial.println("Serial set up -> OK");
   
+  genera_semilla_random();
 
   pinMode(3, OUTPUT); // BUZZER
   
