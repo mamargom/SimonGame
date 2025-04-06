@@ -2,8 +2,6 @@
 #include <time.h>
 
 #include "pitches.h"
-#include "starwars.h"
-
 
 int ronda = 0;
 
@@ -202,9 +200,9 @@ void turno_de_maquina() {
 
 void marca_cambio_maquina_a_jugador(){
 
-  tone(3, NOTE_C4,1000);
+  tone(BUZZER, NOTE_C4,1000);
   delay(ESPERA_CORTA);
-  noTone(3);
+  noTone(BUZZER);
 
 }
 
@@ -277,16 +275,16 @@ void setup() {
   
   genera_semilla_random();
 
-  pinMode(3, OUTPUT); // BUZZER
+  pinMode(BUZZER, OUTPUT);            // BUZZER
   
-  pinMode(8, OUTPUT); // LED
-  pinMode(9, OUTPUT); // LED
-  pinMode(10, OUTPUT); // LED
-  pinMode(11, OUTPUT); // LED
-  pinMode(4,INPUT_PULLUP); // BOTON
-  pinMode(5,INPUT_PULLUP); // BOTON
-  pinMode(6,INPUT_PULLUP); // BOTON
-  pinMode(7,INPUT_PULLUP); // BOTON
+  pinMode(LED_AZUL, OUTPUT);          // LED
+  pinMode(LED_BLANCO, OUTPUT);        // LED
+  pinMode(LED_ROJO, OUTPUT);          // LED
+  pinMode(LED_AMARILLO, OUTPUT);       // LED
+  pinMode(BOTON_AZUL, INPUT_PULLUP);       // BOTON
+  pinMode(BOTON_BLANCO, INPUT_PULLUP);    // BOTON
+  pinMode(BOTON_ROJO, INPUT_PULLUP);      // BOTON
+  pinMode(BOTON_AMARILLO, INPUT_PULLUP);  // BOTON
 
   // dejamos tiempo para que el monitor en 
   // serie se haga visible en modo desarrollo.
