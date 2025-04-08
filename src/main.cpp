@@ -3,6 +3,8 @@
 
 #include "pitches.h"
 
+#include "starwars.h"
+
 int ronda = 0;
 
 // Define un vector de posiciones de leds (4 cajitas: 0,1,2,3)
@@ -222,31 +224,39 @@ void soniditito(){
 
 }
 
+void toca_cancion(){
+
+  for (uint8_t i = 0; i < tamano_de_melodia; i=i+1)
+  {
+    uint16_t tiempo_de_sonido=1000/duracion[i];
+    tone(BUZZER, melodia [i],tiempo_de_sonido);
+    delay(tiempo_de_sonido*1.30);
+    noTone(BUZZER);
+  }
+  
+  
+
+  // tamano_de_melodia -> esta variable dice el numero de 
+  //                      notas que tiene el vector de la melodia
+  //                      el tamano del vector melodia es igual que el del vector duracion
+
+  // melodia -> vector con las notas (NOTA)
+  // duracion -> vector con las duraciones de las notas (DURACION)
+
+  // tone(BUZZER_PIN, NOTA, DURACION);
+
+	// uint16_t PAUSA = DURACION * 1.30; 
+	// delay(PAUSA); 
+	// noTone(BUZZER_PIN); 
+
+}
+
 void sonido_final(boolean ganado){
 
   if (ganado == true)
   {
+    toca_cancion();
     
-    tone(3,NOTE_C4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_CORTO);
-    noTone(3);
-
-    tone(3,NOTE_C4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_CORTO);
-    noTone(3);
-    
-    tone(3,NOTE_D4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_CORTO);
-    noTone(3);
-    
-    tone(3,NOTE_E4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_CORTO);
-    noTone(3);
-
-    tone(3,NOTE_G4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_CORTO);
-    noTone(3);
-
   } else {
 
     tone(3,NOTE_G4,1000);
@@ -293,10 +303,16 @@ void setup() {
 }
 
 
+
+
+
 void loop() {
+  
+
   turno_de_maquina();
   marca_cambio_maquina_a_jugador();
   boolean ganado = turno_de_victor();
   sonido_final(ganado);
   delay(ESPERA_LARGA);
+  
 }
