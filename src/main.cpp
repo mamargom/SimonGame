@@ -9,11 +9,11 @@
 // al llegar a cero se termina el juego
 #define MAX_VIDAS 4
 
-// cada 5 victorias cambia de nivel
+// cada x victorias cambia de nivel
 #define CAMBIO_DE_NIVEL  3
 
 // numero de nivel. Induca la cantidad de leds que se encienden en ese nivel
-#define MAX_NIVEL 8
+#define MAX_NIVEL 11
 #define MIN_NIVEL 5
 
 // cada uantos niveles se toca una cancion
@@ -80,11 +80,35 @@ void enciende_led(int led, int milisegundos) {
   delay(milisegundos);
 }
 
+void enciende_todos_leds() {
+
+  for (int i = 0; i < 4; i++)
+    enciende_led(leds[i]);
+}
+
+void apaga_todos_leds() {
+
+  for (int i = 0; i < 4; i++)
+    apaga_led(leds[i]);
+}
+
+void parpadeo_paso_de_nivel() {
+  enciende_todos_leds();
+  delay(TIEMPO_ENCENDIDO_LED);
+  apaga_todos_leds();
+  delay(TIEMPO_ENCENDIDO_LED);
+  enciende_todos_leds();
+  delay(TIEMPO_ENCENDIDO_LED);
+  apaga_todos_leds();
+}
+
 void parpadea_led(int led, int veces) {
 
   for (int i = 0; i < veces; i++)
     enciende_led(led,TIEMPO_ENCENDIDO_LED);
 }
+
+
 
 String numero_led_a_color(uint8_t led) {
   
@@ -387,11 +411,12 @@ void sonido_ronda_perdida() {
 
 }
 
-void musica_final_ronda(boolean ganado){
+void musica_y_luz_final_ronda(boolean ganado){
 
   if (ganado == true)
   {
   //  toca_cancion();
+    parpadeo_paso_de_nivel();
     sonido_ronda_ganada();
   } else {
     sonido_ronda_perdida();
@@ -520,7 +545,7 @@ boolean juega_partida( uint8_t nivel_inicial, uint8_t vidas_iniciales) {
       victorias = 0;
     }
 
-    musica_final_ronda(ronda_ganada);
+    musica_y_luz_final_ronda(ronda_ganada);
     delay(ESPERA_LARGA);
 
 
