@@ -4,16 +4,20 @@
 #include "pitches.h"
 
 #include "starwars.h"
+#include "pacman.h"
 
 // al llegar a cero se termina el juego
 #define MAX_VIDAS 4
 
 // cada 5 victorias cambia de nivel
-#define CAMBIO_DE_NIVEL  2
+#define CAMBIO_DE_NIVEL  3
 
 // numero de nivel. Induca la cantidad de leds que se encienden en ese nivel
-#define MAX_NIVEL 7
+#define MAX_NIVEL 8
 #define MIN_NIVEL 5
+
+// cada uantos niveles se toca una cancion
+#define CANCION_CADA_X_NIVELES 2
 
 // Define un vector de posiciones de leds (4 cajitas: 0,1,2,3)
 uint8_t patron_de_leds[MAX_NIVEL];
@@ -109,9 +113,9 @@ bool boton_apretado(int boton) {
   delay(TIEMPO_ESPERA_DEBOUNCE);
   int lectura2 = digitalRead(boton);
 
-  if ( (lectura1 == LOW && lectura2 == LOW))
-    Serial.println("Boton " + (String) boton + "/" + numero_boton_a_color(boton) + " : " 
-                    + (String) lectura1 + " -- " + (String) lectura2);
+//  if ( (lectura1 == LOW && lectura2 == LOW))
+//    Serial.println("Boton " + (String) boton + "/" + numero_boton_a_color(boton) + " : " 
+//                    + (String) lectura1 + " -- " + (String) lectura2);
   return (lectura1 == LOW && lectura2 == LOW);
 
 }
@@ -273,19 +277,40 @@ void sonido_inicio_partida(){
 
 }
 
+boolean usuario_interrumpe() {
+      return boton_apretado(BOTON_AZUL);
+}
 
-void sonido_partida_ganada (){
 
-  // Starwars
+void sonido_niveles_pasados() {
+  // pacman
 
-  for (uint8_t i = 0; i < tamano_de_melodia; i=i+1)
+  for (uint8_t i = 0; i < tamano_de_melodia_pacman; i=i+1)
   {
-    uint16_t tiempo_de_sonido=1000/duracion[i];
-    tone(BUZZER, melodia [i],tiempo_de_sonido);
+    uint16_t tiempo_de_sonido=1000/duracion_starwars[i];
+    tone(BUZZER, melodia_pacman [i],tiempo_de_sonido);
     delay(tiempo_de_sonido*1.30);
     noTone(BUZZER);
 
-    if (boton_apretado(BOTON_AZUL)  || boton_apretado(BOTON_BLANCO) || boton_apretado(BOTON_ROJO)|| boton_apretado(BOTON_AMARILLO))
+    // Si el usuario quiere saltarse esto
+    if (usuario_interrumpe()) 
+      break;
+  }
+}
+
+void sonido_partida_ganada () {
+
+  // Starwars
+
+  for (uint8_t i = 0; i < tamano_de_melodia_starwars; i=i+1)
+  {
+    uint16_t tiempo_de_sonido=1000/duracion_starwars[i];
+    tone(BUZZER, melodia_starwars [i],tiempo_de_sonido);
+    delay(tiempo_de_sonido*1.30);
+    noTone(BUZZER);
+
+    // Si el usuario quiere saltarse esto
+    if (usuario_interrumpe()) 
       break;
   }
 }
@@ -409,7 +434,7 @@ uint8_t ajusta_victorias_nivel(boolean ronda_ganada,uint8_t victorias) {
 uint8_t ajusta_vidas(boolean ronda_ganada, uint8_t victorias_en_nivel, uint8_t vidas) {
   
   if (ronda_ganada) {
-    if (victorias_en_nivel == CAMBIO_DE_NIVEL && vidas <= MAX_VIDAS) 
+    if (victorias_en_nivel == CAMBIO_DE_NIVEL && vidas < MAX_VIDAS) 
       return vidas + 1;
     else
       // ha ganado ero no hay cambio
@@ -465,6 +490,11 @@ boolean juega_partida( uint8_t nivel_inicial, uint8_t vidas_iniciales) {
   while (partida_terminada == false) {
 
     if (ronda_ganada == false  || nivel_aumentado) {
+
+      // cancion cada vez que pasa un numero de niveles
+      if (nivel_aumentado && nivel % CANCION_CADA_X_NIVELES)
+        sonido_niveles_pasados();
+
       muestra_vidas(vidas);
       nivel_aumentado = false;
     }

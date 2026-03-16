@@ -3,7 +3,7 @@
 #include "Arduino.h"
 
 
-uint16_t melodia [] = {
+uint16_t melodia_starwars [] = {
   NOTE_AS4, NOTE_AS4, NOTE_AS4,
   NOTE_F5, NOTE_C6,
   NOTE_AS5, NOTE_A5, NOTE_G5, NOTE_F6, NOTE_C6,
@@ -25,7 +25,7 @@ uint16_t melodia [] = {
   NOTE_C6
 };
 
-int duracion[] = {
+int duracion_starwars[] = {
   8, 8, 8,
   2, 2,
   8, 8, 8, 2, 4,
@@ -48,10 +48,10 @@ int duracion[] = {
 };
 
 
-uint16_t  tamano_de_melodia = sizeof(melodia) / sizeof(int);
+uint16_t  tamano_de_melodia_starwars = sizeof(melodia_starwars) / sizeof(int);
 
-uint16_t duracion_de_nota(uint16_t posicion) {
-  return 1000 / duracion[posicion];
+uint16_t duracion_de_nota_starwars(uint16_t posicion) {
+  return 1000 / duracion_starwars[posicion];
 }
 
 
