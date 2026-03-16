@@ -5,11 +5,18 @@
 
 #include "starwars.h"
 
-int ronda = 0;
+// al llegar a cero se termina el juego
+#define MAX_VIDAS 4
+
+// cada 5 victorias cambia de nivel
+#define CAMBIO_DE_NIVEL  2
+
+// numero de nivel. Induca la cantidad de leds que se encienden en ese nivel
+#define MAX_NIVEL 7
+#define MIN_NIVEL 5
 
 // Define un vector de posiciones de leds (4 cajitas: 0,1,2,3)
-uint8_t patron_de_leds[5];
-uint8_t longitud_de_patron = 5;
+uint8_t patron_de_leds[MAX_NIVEL];
 
 #define TIEMPO_ESPERA_DEBOUNCE 30
 
@@ -18,8 +25,11 @@ enum LED {
   LED_AZUL = 9,
   LED_BLANCO = 8,
   LED_ROJO = 10,
-  LED_AMARILLO = 11
+  LED_AMARILLO = 11,
+  NUM_LEDS = 4
 };
+
+int leds[NUM_LEDS] = {LED_AZUL, LED_BLANCO, LED_ROJO, LED_AMARILLO};
 
 enum BOTON {
   BOTON_AZUL = 4,
@@ -35,6 +45,7 @@ enum BOTON {
 #define TIEMPO_NOTA_MUSICAL_CORTO 200
 #define ESPERA_CORTA         100
 #define ESPERA_LARGA         300
+#define ESPERA_MUY_LARGA         1500
 
 
 void genera_semilla_random() {
@@ -48,11 +59,27 @@ void genera_semilla_random() {
 }
 
 
+void enciende_led(int led) {
+  digitalWrite(led, HIGH);
+}
+
+void apaga_led(int led) {
+  digitalWrite(led, LOW);
+}
+
+
+
 void enciende_led(int led, int milisegundos) {
   digitalWrite(led, HIGH);
   delay(milisegundos);
   digitalWrite(led, LOW);
   delay(milisegundos);
+}
+
+void parpadea_led(int led, int veces) {
+
+  for (int i = 0; i < veces; i++)
+    enciende_led(led,TIEMPO_ENCENDIDO_LED);
 }
 
 String numero_led_a_color(uint8_t led) {
@@ -131,9 +158,9 @@ uint8_t dame_led_de_boton(uint8_t boton)
 
 
 
-boolean turno_de_victor() {
+boolean turno_de_victor(uint8_t long_patron) {
 
-  for (int8_t i = 0; i < longitud_de_patron; i++)
+  for (int8_t i = 0; i < long_patron; i++)
   {
     int8_t boton = numero_de_boton_pulsado();
     int8_t led = dame_led_de_boton(boton);
@@ -159,9 +186,9 @@ uint8_t led_aleatorio() {
   return (random() % 4 ) + 8 ;
 }
 
-void genera_patron() {
+void genera_patron(uint8_t long_patron) {
 
-  for (uint8_t i = 0; i < longitud_de_patron; i=i+1)
+  for (uint8_t i = 0; i < long_patron; i=i+1)
   {
     patron_de_leds[i] = led_aleatorio();
   }
@@ -178,25 +205,47 @@ void debug_patron() {
                               numero_led_a_color(patron_de_leds[4]) + "]");
 }
 
-void muestra_patron(){
+void muestra_patron(uint8_t long_patron){
 
   //debug_patron();
 
-  for (uint8_t i = 0; i < longitud_de_patron; i = i+1) 
+  for (uint8_t i = 0; i < long_patron; i = i+1) 
   {
     enciende_led (patron_de_leds[i], TIEMPO_ENCENDIDO_LED);
   }
   
 }
 
+void muestra_vidas(uint8_t vidas){
+
+  // enciende
+  for(int i=0;i<4;i++){
+
+    if(i < vidas-1)
+        enciende_led (leds[i]);
+
+    else if(i == vidas-1)
+        parpadea_led(leds[i], 5);
+    else
+      digitalWrite(leds[i], LOW);
+  }
+
+  // apaga todos
+   for(int i=0;i<4;i++){
+      apaga_led(leds[i]);
+   }
+  delay(ESPERA_MUY_LARGA);
+}
+
+
 
 
 //Genera Patron aleatorio y lo muestra al Jugador
 
-void turno_de_maquina() {
+void turno_de_maquina(uint8_t nivel) {
 
-  genera_patron();
-  muestra_patron();
+  genera_patron(nivel);
+  muestra_patron(nivel);
 }
 
 
@@ -208,7 +257,7 @@ void marca_cambio_maquina_a_jugador(){
 
 }
 
-void soniditito(){
+void sonido_inicio_partida(){
 
   tone(BUZZER, NOTE_C4);
   delay(1000);
@@ -224,7 +273,10 @@ void soniditito(){
 
 }
 
-void toca_cancion(){
+
+void sonido_partida_ganada (){
+
+  // Starwars
 
   for (uint8_t i = 0; i < tamano_de_melodia; i=i+1)
   {
@@ -232,51 +284,141 @@ void toca_cancion(){
     tone(BUZZER, melodia [i],tiempo_de_sonido);
     delay(tiempo_de_sonido*1.30);
     noTone(BUZZER);
+
+    if (boton_apretado(BOTON_AZUL)  || boton_apretado(BOTON_BLANCO) || boton_apretado(BOTON_ROJO)|| boton_apretado(BOTON_AMARILLO))
+      break;
   }
-  
-  
+}
 
-  // tamano_de_melodia -> esta variable dice el numero de 
-  //                      notas que tiene el vector de la melodia
-  //                      el tamano del vector melodia es igual que el del vector duracion
+void sonido_partida_perdida() {
 
-  // melodia -> vector con las notas (NOTA)
-  // duracion -> vector con las duraciones de las notas (DURACION)
+    tone(3,NOTE_G2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+    
+    tone(3,NOTE_F2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+    
+    tone(3,NOTE_E2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
 
-  // tone(BUZZER_PIN, NOTA, DURACION);
+    tone(3,NOTE_C2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
 
-	// uint16_t PAUSA = DURACION * 1.30; 
-	// delay(PAUSA); 
-	// noTone(BUZZER_PIN); 
+    tone(3,NOTE_E2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+
+    tone(3,NOTE_F2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+
+        tone(3,NOTE_G2,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+}
+
+
+void sonido_ronda_ganada() {
+
+    tone(3,NOTE_C4,1000);
+    delay(TIEMPO_NOTA_MUSICAL_CORTO);
+    noTone(3);
+    
+    tone(3,NOTE_C5,1000);
+    delay(TIEMPO_NOTA_MUSICAL_CORTO);
+    noTone(3);
+
+    tone(3,NOTE_C6,1000);
+    delay(TIEMPO_NOTA_MUSICAL_CORTO);
+    noTone(3);
+    
+    tone(3,NOTE_C7,1000);
+    delay(TIEMPO_NOTA_MUSICAL_CORTO);
+    noTone(3);
 
 }
 
-void sonido_final(boolean ganado){
+void sonido_ronda_perdida() {
+
+    tone(3,NOTE_G3,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+    
+    tone(3,NOTE_F3,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+    
+    tone(3,NOTE_E3,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+
+    tone(3,NOTE_C3,1000);
+    delay(TIEMPO_NOTA_MUSICAL_LARGO);
+    noTone(3);
+
+}
+
+void musica_final_ronda(boolean ganado){
 
   if (ganado == true)
   {
-    toca_cancion();
-    
+  //  toca_cancion();
+    sonido_ronda_ganada();
   } else {
-
-    tone(3,NOTE_G4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_LARGO);
-    noTone(3);
-    
-    tone(3,NOTE_F4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_LARGO);
-    noTone(3);
-    
-    tone(3,NOTE_E4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_LARGO);
-    noTone(3);
-
-    tone(3,NOTE_C4,1000);
-    delay(TIEMPO_NOTA_MUSICAL_LARGO);
-    noTone(3);
+    sonido_ronda_perdida();
   }
   
 }
+
+
+
+
+boolean ha_perdido_partida(uint8_t vidas) {
+  return vidas == 0;
+}
+
+boolean ha_ganado_partida(uint8_t nivel, uint8_t rondas_ganadas) {
+  return nivel == MAX_NIVEL && rondas_ganadas == CAMBIO_DE_NIVEL;
+}
+
+
+boolean ha_terminado_partida(uint8_t nivel, uint8_t rondas_ganadas, uint8_t vidas) {
+  
+  return ha_ganado_partida (nivel, rondas_ganadas) || ha_perdido_partida (vidas);
+}
+
+
+boolean puede_subir_nivel(boolean ronda_ganada, uint8_t victorias) {
+
+  return ronda_ganada && (victorias == CAMBIO_DE_NIVEL);
+
+}
+
+
+uint8_t ajusta_victorias_nivel(boolean ronda_ganada,uint8_t victorias) {
+  if (ronda_ganada)
+    return victorias + 1;
+
+  return victorias;
+}
+
+uint8_t ajusta_vidas(boolean ronda_ganada, uint8_t victorias_en_nivel, uint8_t vidas) {
+  
+  if (ronda_ganada) {
+    if (victorias_en_nivel == CAMBIO_DE_NIVEL && vidas <= MAX_VIDAS) 
+      return vidas + 1;
+    else
+      // ha ganado ero no hay cambio
+      return vidas;
+  }
+  // perdido
+  return vidas - 1;
+}
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -296,23 +438,78 @@ void setup() {
   pinMode(BOTON_ROJO, INPUT_PULLUP);      // BOTON
   pinMode(BOTON_AMARILLO, INPUT_PULLUP);  // BOTON
 
+
   // dejamos tiempo para que el monitor en 
   // serie se haga visible en modo desarrollo.
-  soniditito();
+  //sonido_inicio_partida();
   delay(2000);
 }
 
 
+// True juego ganado
+boolean juega_partida( uint8_t nivel_inicial, uint8_t vidas_iniciales) {
+
+  uint8_t nivel = nivel_inicial;
+  uint8_t vidas = vidas_iniciales;
+  // numero de victorias en nivel
+  uint8_t victorias = 0;
+  boolean partida_terminada = false;
+  boolean partida_ganada = false;
+  boolean ronda_ganada = false;
+  boolean nivel_aumentado = false;
+
+
+  sonido_inicio_partida();
+
+
+  while (partida_terminada == false) {
+
+    if (ronda_ganada == false  || nivel_aumentado) {
+      muestra_vidas(vidas);
+      nivel_aumentado = false;
+    }
+    
+
+    turno_de_maquina(nivel);
+    marca_cambio_maquina_a_jugador();
+    ronda_ganada = turno_de_victor(nivel);
+    
+    victorias = ajusta_victorias_nivel(ronda_ganada, victorias);
+    vidas = ajusta_vidas(ronda_ganada, victorias, vidas);
+    // puede subir de nivel
+    if (puede_subir_nivel(ronda_ganada, victorias)) {
+      nivel += 1;
+      nivel_aumentado = true;
+    }
+
+    partida_terminada = ha_terminado_partida(nivel, victorias, vidas);
+    partida_ganada = ha_ganado_partida(nivel, victorias);
+    
+    if (victorias == CAMBIO_DE_NIVEL) {
+
+      victorias = 0;
+    }
+
+    musica_final_ronda(ronda_ganada);
+    delay(ESPERA_LARGA);
+
+
+  }
+
+  return partida_ganada;
+
+}
 
 
 
 void loop() {
-  
 
-  turno_de_maquina();
-  marca_cambio_maquina_a_jugador();
-  boolean ganado = turno_de_victor();
-  sonido_final(ganado);
-  delay(ESPERA_LARGA);
+  boolean partida_ganada = juega_partida(MIN_NIVEL, MAX_VIDAS);
+
+
+  if (partida_ganada)
+    sonido_partida_ganada();
+  else
+    sonido_partida_perdida();
   
 }
